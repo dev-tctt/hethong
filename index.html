@@ -712,7 +712,12 @@
     const aoa = [['Nội dung','Ghi chú','Thời gian'], ...src.map(r => [r.noidung || '', r.note || '', r.time || ''])];
     const ws = XLSX.utils.aoa_to_sheet(aoa);
     XLSX.utils.book_append_sheet(wb, ws, 'Links');
-    XLSX.writeFile(wb, 'file_mau.xlsx');
+    const now = new Date();
+    const dd = String(now.getDate()).padStart(2, '0');
+    const mm = String(now.getMonth() + 1).padStart(2, '0');
+    const yyyy = now.getFullYear();
+    const filename = `tt_hethong_${dd}-${mm}-${yyyy}.xlsx`;
+    XLSX.writeFile(wb, filename);
   }
 
   function downloadExcelTemplate() {
@@ -818,7 +823,7 @@
   })();
 
   // ====== Hiển thị ước tính dung lượng localStorage (chỉ tham khảo) ======
-  
+
 async function calcIndexedDBTotal() {
   let total = 0;
   try {
@@ -886,17 +891,7 @@ async function checkStorageUsage() {
         try { rows = JSON.parse(raw) || []; }
         catch(e){ console.warn('Không parse được JSON; reset hàng:', e); rows = []; }
       } else {
-        // Nếu trước đây có dữ liệu trong localStorage, migrate 1 lần
-        try {
-          const legacy = localStorage.getItem(DATA_KEY);
-          if (legacy) {
-            rows = JSON.parse(legacy) || [];
-            await idbSet(DATA_KEY, legacy);
-            // KHÔNG xóa localStorage để tránh mất khi user quay lại bản cũ; có thể tự xóa sau
-          } else {
-            rows = [];
-          }
-        } catch(e){ rows = []; }
+        rows = [];
       }
     } catch(e){
       console.error('Lỗi đọc IndexedDB:', e);
